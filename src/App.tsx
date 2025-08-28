@@ -21,7 +21,11 @@ import {
   LogOut,
   ChevronDown,
   ChevronUp,
+  Moon,
+  Sun,
+  Loader,
 } from "lucide-react";
+import { Spinner } from "./components/ui/shadcn-io/spinner";
 
 type MenuItem = {
   id: number;
@@ -44,7 +48,7 @@ export default function App() {
   const [showCart, setShowCart] = useState(false);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
   const [cart, setCart] = useState<
-    Array<{ id: number; name: string; price: number; quantity: number }>
+    Array<{ id: number; name: string; price_rs: number; quantity: number }>
   >([]);
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>(
     {}
@@ -52,6 +56,20 @@ export default function App() {
   const [menuData, setMenuData] = useState<[]>([]);
   const [loading, setLoading] = useState(true);
   const [restaurantName, setRestaurantName] = useState("");
+
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    // Try to load from localStorage, fallback to light
+    return (localStorage.getItem("theme") as "light" | "dark") || "light";
+  });
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  };
 
   useEffect(() => {
     const fetchImeRestorana = async () => {
@@ -132,7 +150,10 @@ export default function App() {
   };
 
   const getTotalPrice = () => {
-    return cart.reduce((total, item) => total + item.price * item.quantity, 0);
+    return cart.reduce(
+      (total, item) => total + item.price_rs * item.quantity,
+      0
+    );
   };
 
   const handleLogin = (name: string, isAdmin: boolean) => {
@@ -156,14 +177,42 @@ export default function App() {
   return (
     <div className="min-h-screen bg-background flex flex-col items-center">
       {/* Header */}
-      <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur">
-        <div className="container flex h-16 items-center justify-between">
+      <header className="container sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur">
+        <div className="flex h-16 items-center justify-between">
           <div className="flex items-center space-x-2 ml-8">
             <ChefHat className="h-6 w-6 text-primary" />
-            <h1 className="text-xl font-bold">Restoran</h1>
+            <h1 className="text-xl font-bold">CaffeResto</h1>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex flex-row gap-2">
+            {/* Dark mode toggle switch */}
+            <label className="flex items-center cursor-pointer select-none mr-2">
+              <span className="mr-2">
+                {theme === "dark" ? (
+                  <Sun className="h-5 w-5 text-yellow-400" />
+                ) : (
+                  <Moon className="h-5 w-5 text-gray-700" />
+                )}
+              </span>
+              <input
+                type="checkbox"
+                checked={theme === "dark"}
+                onChange={toggleTheme}
+                className="sr-only"
+                aria-label="Promeni temu"
+              />
+              <span
+                className={`w-10 h-6 flex items-center bg-muted rounded-full p-1 transition-colors ${
+                  theme === "dark" ? "bg-primary" : "bg-muted"
+                }`}
+              >
+                <span
+                  className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
+                    theme === "dark" ? "translate-x-4" : ""
+                  }`}
+                />
+              </span>
+            </label>
             {cart.length > 0 && (
               <Button
                 variant="outline"
@@ -223,7 +272,7 @@ export default function App() {
 
         {/* Menu Categories */}
         {loading ? (
-          <p>Učitavanje menija...</p>
+          <Spinner variant="circle-filled" />
         ) : (
           <div className="space-y-6">
             {menuData.map((item: any) => {
@@ -264,7 +313,7 @@ export default function App() {
                               <div className="w-full h-40 bg-muted flex items-center justify-center rounded-md">
                                 {item.image_url ? (
                                   <img
-                                    src={item.image_url}
+                                    src={`http://192.168.1.164:5000${item.image_url}`}
                                     alt={item.name}
                                     className="object-cover w-full h-full rounded-md"
                                   />

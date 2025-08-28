@@ -15,7 +15,7 @@ import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 interface CartItem {
   id: number;
   name: string;
-  price: number;
+  price_rs: number;
   quantity: number;
 }
 
@@ -53,7 +53,7 @@ export function ShoppingCart({
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent className="w-full sm:max-w-lg">
+      <SheetContent className="w-full sm:max-w-lg p-3">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <ShoppingBag className="h-5 w-5" />
@@ -81,7 +81,7 @@ export function ShoppingCart({
                     <div className="flex-1">
                       <h4 className="font-medium">{item.name}</h4>
                       <p className="text-sm text-muted-foreground">
-                        {item.price} RSD po komadu
+                        {item.price_rs} RSD po komadu
                       </p>
                     </div>
 
